@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <script src="https://cdn.wilddog.com/js/vendor/jquery-1.11.2.min.js"></script>
+	<script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+	<script src="./js/echarts.min.js"></script>
+    <style type="text/css">
+		ul,li{list-style: none;margin:0;padding:0;float:left;}
+		html{height:100%}
+		body{height:100%;margin:0px;padding:0px;font-family:"微软雅黑";}
+		#container{height:100%;width:100%;}
+		#r-result{width:100%;}
+		#buttonGroup{position:absolute; left:0px; top:0px;}
+    </style>	
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="street" style="height:40%;position:10px"></div>
+	<div id="time" style="height:40%;"></div>
+    <!-- ECharts单文件引入 -->
+	<div id = "buttonGroup" style="inline">
+		<button id = "draw" type="button" value="绘图">绘图</button>
+	</div>
+    <script type="text/javascript">
+	var street = echarts.init(document.getElementById('street'));
+	var time = echarts.init(document.getElementById('time'));
+	$(function(){
+		$( "#draw" ).button();
+	});
+	$("#draw").click(function(){
+		$.ajax({
+			url:'./getFile.php',
+			type:'post',
+			dataType:'json', 
+			success:function(data){
+				console.log(data);
+				street.setOption(getOption(data[4],134,0));
+				time.setOption(getOption(data[4],17,1));
+			}
+		});
+	});
+	function verdata(data,key,type)
+	{
+		var ver = new Array();
+		var xA = new Array();
+		if(type == 1)
+		{
+			for (var i in data){
+				ver.push(data[i][key]);
+				xA.push(i);
+			}
+		}else{
+			for (var i in data[key]){
+				ver.push(data[key][i]);
+				xA.push(i);
+			}
+		}
+		return [xA,ver];
+	}
+	function getOption(data,key,type)
+	{
+	ver = verdata(data,key,type);
+	console.log(ver);
+
+var colors = ['#5793f3', '#d14a61', '#675bba'];
+
+
+option = {
+    color: colors,  //设置color的数组
+
+    tooltip : {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'cross',
+            label: {
+                backgroundColor: '#6a7985'
+            }
+        }
+    },
+    legend: {
+        data:['私家车慢速充电负荷曲线', '私家车无序充电负荷曲线']
+    },
+    grid: {
+        top: 70,
+        bottom: 50
+    },
+    xAxis: [
+        {
+            type: 'category',
+            axisTick: {
+                alignWithLabel: true
+            },
+            axisLine: {
+                onZero: false,
+                lineStyle: {
+                    color: colors[0]
+                }
+            },
+            axisPointer: {
+            },
+            data: ver[0]
+        }
+    ],
+    yAxis: [
+        {
+            type: 'value'
+        }
+    ],
+	visualMap: {
+            top: 10,
+            right: 10,
+            pieces: [{
+                gt: 0,
+                lte: 30,
+                color: '#096'
+            }, {
+                gt: 30,
+                lte: 60,
+                color: '#ffde33'
+            }, {
+                gt: 60,
+                lte: 90,
+                color: '#ff9933'
+            }, {
+                gt: 90,
+                lte: 120,
+                color: '#cc0033'
+            }, {
+                gt: 120,
+                lte: 150,
+                color: '#660099'
+            }, {
+                gt: 150,
+                color: '#7e0023'
+            }],
+            outOfRange: {
+                color: '#999'
+            }
+        },
+    series: [
+        {
+            name:'车流量',
+            type:'line',
+            smooth: true,
+			areaStyle: {normal: {}},
+            data:ver[1]
+        }
+    ]
+};
+
+	return option;
+
+	}
+
+    </script>
+</body>

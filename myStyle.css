@@ -1,0 +1,32 @@
+.anchorBL{  
+	   display:none;  
+	}  
+body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+	#allmap {height:100%; width:calc( 100%-330px);z-index:-1;top:0;}
+	#control{width:100%;}
+	#time .ui-slider-range { background: #81C0C0; }
+	#time .ui-slider-handle { border-color: #81C0C0; }
+	#time{
+		width:320px;
+	}
+	#list{z-index:99;float:left;float:bottom}
+	#tool{float:right;width:320px}
+	#swatch{margin:0 auto}
+	#road{margin-left:30px;margin-top:10px}
+	#line{margin-left:30px;margin-top:10px}
+	#file{margin-left:30px;margin-top:10px}
+	#drawA{margin-top:5px}
+	#drawB{margin-top:5px}
+	#draw{display:iline-block;position:relative;left:20px;margin-top:10px}
+	#list{position:absolute; left:0px; top:0px; background-color:rgba(100%,100%,100%,0.8);}
+	#timepicker{margin-left:10px}
+	.blur {	
+		filter: url(blur.svg#blur); /* FireFox, Chrome, Opera */
+		
+		-webkit-filter: blur(3px); /* Chrome, Opera */
+		   -moz-filter: blur(3px);
+			-ms-filter: blur(3px);    
+				filter: blur(3px);
+		
+		filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=10, MakeShadow=false); /* IE6~IE9 */
+	}

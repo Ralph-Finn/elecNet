@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+		body, html {width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+		#allmap{width:100%;height:100%;}
+	</style>
+	</style>
+	</style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=Ss2NVqvLYAcM3EcdVcTT6QLtAkDvXCvX  "></script>
+	<script src = "https://cdn.wilddog.com/sdk/js/2.0.0/wilddog-auth.js"></script>
+	<script src = "https://cdn.wilddog.com/sdk/js/2.0.0/wilddog-sync.js"></script>
+    <script src="https://cdn.wilddog.com/js/vendor/jquery-1.11.2.min.js"></script>
+	<script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+    <title>国家电网</title>
+</head>
+<style type="text/css">  
+   .anchorBL{  
+       display:none;  
+   }
+	#allmap{z-index:-1;}
+	#buttonGroup{position:absolute; left:0px; top:0px;}
+	#list{position:absolute; right:0px; bottom:0px; background-color:rgba(100%,100%,100%,0.8);}
+  </style>  
+<body>
+<div id="allmap"></div>
+	<div id = "buttonGroup" style="inline">
+		<input id = "kuai" type="button" onclick="addKuai()"  value="快速" />
+		<input id = "man" type="button" onclick="addMan()"  value="慢速" />
+		<input id = "all" type="button" onclick="addAll()"  value="全部" />
+	</div>
+	<table id = "list" style="background-color:000000;opacity=50">
+		<tr>
+		<td><img src="./kuai.png" width="50%" height="50%"/></td>
+		<td>快速充电设施</td>
+		</tr>	
+		<tr>
+		<td><img src="./man.png" width="50%" height="50%"/></td>
+		<td>慢速充电设施</td>
+		</tr>
+	</table>
+    
+	
+</body>
+</html>
+<script type="text/javascript">
+    // 百度地图API功能
+	$(function(){
+		$( "#kuai, #man, #all" ).button();
+	});
+    var map = new BMap.Map("allmap");//加入地图类型控件
+	map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+	map.addControl(new BMap.MapTypeControl()); 
+    var point = new BMap.Point(120.1,30.3);
+    map.centerAndZoom(point, 14);
+	var opts = {
+				width : 250,     // 信息窗口宽度
+				height: 80,     // 信息窗口高度
+				title : "" , // 信息窗口标题
+				enableMessage:true//设置允许信息窗发送短息
+			   };
+	var mapStyle={  style : "light" }; 
+	map.setMapStyle(mapStyle);
+	var config = {
+	syncURL: "https://ralph01.wilddogio.com" //输入节点 URL
+	};
+	wilddog.initializeApp(config);
+    // 编写自定义函数,创建标注,该函数是提取目标的点，然后进行绘制
+    function addMarker(cont,diva){//cont是充电站的编号，diva是充电站的类型,tan是显示的状态
+	if(diva==1)//1说明是快速的
+	{
+	var myIcon = new BMap.Icon("./kuai.png", new BMap.Size(25, 50), {});
+	var s="/Sheet1/"+cont;
+	var tt="快速充电桩——"
+	}
+	else
+	{
+	var myIcon = new BMap.Icon("./man.png", new BMap.Size(25, 50), {});
+	var s="/Sheet2/Sheet2/"+cont;
+	var tt="慢速充电桩——"	
+	}
+	var ref = wilddog.sync().ref(s);
+	ref.on('value', function(snapshot, error) {
+  if (error == null) {
+    var newPost = snapshot.val();
+	//console.log("bd_title: " + newPost.dth_title);
+    console.log("bd_lat: " + newPost.bd_lat);
+    console.log("bd_long: " + newPost.bd_long);
+	var point = new BMap.Point(120.2,30.3);  
+	point.lng=newPost.bd_long;
+	point.lat=newPost.bd_lat;
+	var marker = new BMap.Marker(point,{icon: myIcon});
+      map.addOverlay(marker);
+	  var p = marker.getPosition(); 
+	  var content=tt + "经度："+p.lng + ",纬度：" + p.lat;
+		//marker.setTitle(s);
+	addClickHandler(content,marker);
+  } else {
+    console.log(error);
+  }
+});     
+	}
+	function addClickHandler(content,marker){
+		marker.addEventListener("click",function(e){
+			openInfo(content,e)}
+		);
+	}
+	function openInfo(content,e){
+		var p = e.target;
+		var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
+		var infoWindow = new BMap.InfoWindow(content,opts);  // 创建信息窗口对象 
+		map.openInfoWindow(infoWindow,point); //开启信息窗口
+	}
+	
+	function addKuai(){
+		map.clearOverlays();
+		for (var i = 0; i < 21; i ++) {
+			
+			addMarker(i,1);
+		}
+	}
+	
+	function addMan(){
+		map.clearOverlays();
+		for (var i = 0; i < 25; i ++) {
+			
+			addMarker(i,2);
+		}
+	}
+	
+	function addAll(){
+		map.clearOverlays();
+		for (var i = 0; i < 25; i ++) {
+			
+			addMarker(i,1);
+			addMarker(i,2);
+		}
+	}
+	for (var i = 0; i < 21; i ++) {
+			
+			addMarker(i,1);
+		}	
+
+
+</script>

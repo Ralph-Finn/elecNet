@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=Ss2NVqvLYAcM3EcdVcTT6QLtAkDvXCvX "></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/Heatmap/2.0/src/Heatmap_min.js"></script>
+	<script src = "https://cdn.wilddog.com/sdk/js/2.0.0/wilddog-auth.js"></script>
+	<script src = "https://cdn.wilddog.com/sdk/js/2.0.0/wilddog-sync.js"></script>
+    <script src="https://cdn.wilddog.com/js/vendor/jquery-1.11.2.min.js"></script>
+	<script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+    <title>需求热力图</title>
+    <style type="text/css">
+		ul,li{list-style: none;margin:0;padding:0;float:left;}
+		html{height:100%}
+		body{height:100%;margin:0px;padding:0px;font-family:"微软雅黑";}
+		#container{height:100%;width:100%;}
+		#r-result{width:100%;}
+		#buttonGroup{position:absolute; left:0px; top:0px;}
+    </style>	
+</head>
+<body bgcolor="#000000">
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="height:70%;position:10px"></div>
+    <!-- ECharts单文件引入 -->
+	<div id = "buttonGroup" style="inline">
+		<button id = "tt" type="button" onclick="openNew()">V2G调度电量</button>
+	</div>
+    <script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+    <script type="text/javascript">
+	$(function(){
+		$( "#tt" ).button();
+	});
+	function openNew()
+	{
+	window.location.href="./tableX.html";
+	}
+	var config = {
+	syncURL: "https://route.wilddogio.com" //输入节点 URL
+	};
+	wilddog.initializeApp(config);
+	var ref = wilddog.sync().ref("/D/Sheet1");
+	var ddm=function(snapshot, error) {
+	var newPost = snapshot.val();
+	//console.log(newPost[1].first);
+	//newPost[1].first
+	var data=new Array();
+	var time=new Array();
+	var pre=new Array();
+	for(var i=0;i<96;i++)
+	{
+	 data[i]=new Array();
+	 data[i].push(newPost[i].first,newPost[i].second,newPost[i].min,newPost[i].max);
+	 time.push(newPost[i].time);
+	 pre.push(newPost[i].first);
+	}
+	//console.log(data);
+	//console.log(time);
+	HHH(time,data,pre);
+	};	
+	ref.on('value',ddm );
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: 'http://echarts.baidu.com/build/dist'
+            }
+        });
+        
+        // 使用
+		function HHH(time,data,pre){
+        require(
+            [
+                'echarts',
+				'echarts/theme/macarons',
+                'echarts/chart/k',
+				'echarts/chart/line'// 使用柱状图就加载bar模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main'),'macarons'); 
+                
+                var option = {
+    title : {
+        text: '分时电价表'
+    },
+    tooltip : {
+        trigger: 'axis',
+        formatter: function (params) {
+            var res =  params[0].name;
+            res += '<br/>  上周 : ' + params[0].value[0] + '  当日 : ' + params[0].value[3];
+            //res += '<br/>  收盘 : ' + params[0].value[1] + '  最低 : ' + params[0].value[2];
+            return res;
+        }
+    },
+    legend: {
+        data:['V2G电价']
+    },
+    toolbox: {
+        show : true,
+        feature : {
+            mark : {show: true},
+            dataZoom : {show: true},
+            dataView : {show: true, readOnly: false},
+            magicType: {show: true, type: ['line', 'bar']},
+            restore : {show: true},
+            saveAsImage : {show: true}
+        }
+    },
+    dataZoom : {
+        show : true,
+        realtime: true,
+        start : 50,
+        end : 100
+    },
+    xAxis : [
+        {
+            type : 'category',
+            boundaryGap : true,
+            axisTick: {onGap:false},
+            splitLine: {show:false},
+            data : time
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value',
+            scale:true,
+            boundaryGap: [0.01, 0.01]
+        }
+    ],
+    series : [
+        {
+            name:'V2G当日数据',
+            type:'k',
+            data:data
+        }, {
+            name:'V2G历史数据',
+            type:'line',
+            data:pre
+			}
+    ]
+};
+			//console.log(data);
+			//console.log(time);
+			//option.xAxis.data=time;
+			//option.series.data=data;
+			//console.log(option.xAxis.data);
+                    
+        
+                // 为echarts对象加载数据 
+                myChart.setOption(option);
+				//console.log(option.xAxis.data);
+				//myChart.setThem("dark");
+				
+            }
+        );
+		}
+    </script>
+</body>

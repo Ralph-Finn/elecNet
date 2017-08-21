@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>电动汽车综合规划平台</title>
+	<link href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+	<link href="http://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="css/htmleaf-demo.css">
+	<link rel="stylesheet" type="text/css" href="css/bootsnav.css">
+	<link rel="stylesheet" type="text/css" href="myStyle.css">
+	<link rel="stylesheet" type="text/css" href="./css/StyleNN.css">
+	<style type="text/css">
+		.navbar-brand{
+		    padding: 29px 15px;
+		    height: auto;
+		}
+		nav.navbar.bootsnav{
+		    border: none;
+		    margin-bottom: 150px;
+		}
+		.navbar-nav{
+		    float: left;
+		}
+		nav.navbar.bootsnav ul.nav > li > a{
+		    color: #474747;
+		    text-transform: uppercase;
+		    padding: 30px;
+		}
+		nav.navbar.bootsnav ul.nav > li:hover{
+		    background: #f4f4f4;
+		}
+		.nav > li:after{
+		    content: "";
+		    width: 0;
+		    height: 5px;
+		    background: #34c9dd;
+		    position: absolute;
+		    bottom: 0;
+		    left: 0;
+		    transition: all 0.5s ease 0s;
+		}
+		.nav > li:hover:after{
+		    width: 100%;
+		}
+		nav.navbar.bootsnav ul.nav > li.dropdown > a.dropdown-toggle:after{
+		    content: "+";
+		    font-family: 'FontAwesome';
+		    font-size: 16px;
+		    font-weight: 500;
+		    position: absolute;
+		    top: 35%;
+		    right: 10%;
+		    transition: all 0.4s ease 0s;
+		}
+		nav.navbar.bootsnav ul.nav > li.dropdown.on > a.dropdown-toggle:after{
+		    content: "\f105";
+		    transform: rotate(90deg);
+		}
+		.dropdown-menu.multi-dropdown{
+		    position: absolute;
+		    left: -100% !important;
+		}
+		nav.navbar.bootsnav li.dropdown ul.dropdown-menu{
+		    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+		    border: none;
+		}
+		@media only screen and (max-width:990px){
+		    nav.navbar.bootsnav ul.nav > li.dropdown > a.dropdown-toggle:after,
+		    nav.navbar.bootsnav ul.nav > li.dropdown.on > a.dropdown-toggle:after{ content: " "; }
+		    .dropdown-menu.multi-dropdown{ left: 0 !important; }
+		    nav.navbar.bootsnav ul.nav > li:hover{ background: transparent; }
+		    nav.navbar.bootsnav ul.nav > li > a{ margin: 0; }
+		}
+	</style>
+</head>
+<body style="overflow-y:hidden;overflow-x:hidden;background-color:#01367a">
+	<div><img src="./resource/bg.png" height=120px style="position:absolute;"/></div>
+	<div><img src="./resource/title.png" height=85px style="z-index:9999;position:relative;margin-left:30px" /></div>
+	<nav class="animenu"> 
+		  <button class="animenu__toggle">
+		    <span class="animenu__toggle__bar"></span>
+		    <span class="animenu__toggle__bar"></span>
+		    <span class="animenu__toggle__bar"></span>
+		  </button>
+		  <ul class="animenu__nav" style="opacity:0.7">
+		    <li>
+		      <a href="./addLineLayer.html" target="showframe">算例说明</a>
+			  <ul class="animenu__nav__child">
+		        <li><a href="./addLineLayer.html" target="showframe">实际网络</a></li>
+		        <li><a href="./abstract.html" target="showframe">抽象网络</a></li>
+		      </ul>
+		    </li>
+		    <li>
+		      <a href="./needMap.html" target="showframe">微观交通</a>
+		      <ul class="animenu__nav__child">
+		        <li><a href="./needMap.html" target="showframe">需求分析</a></li>
+		        <li><a href="./flow.html" target="showframe">交通流量</a></li>
+		        <li><a href="./charge.html" target="showframe">充电负荷</a></li>
+				<li><a href="./condidate.html" target="showframe">候选站点</a></li>
+		      </ul>
+		    </li>     
+		    <li>
+		      <a href="#">宏观交通</a>
+		      <ul class="animenu__nav__child">
+		        <li><a href="">交通流量</a></li>
+		        <li><a href="">截获流量</a></li>
+		      </ul>
+		    </li>
+			<li>
+		      <a href="#">协同规划</a>
+		      <ul class="animenu__nav__child">
+		        <li><a href="">在线计算</a></li>
+		        <li><a href="">结果展示</a></li>
+		      </ul>
+		    </li>               
+		  </ul>
+		</nav>
+		<div id="section" style="width:100%;height:600px;margin-top:-10px">
+		<iframe src="./addLineLayer.html" name="showframe" frameborder="no" width=100% height=98% seamless></iframe>
+		</div>
+	</div>
+	
+	<script src="http://cdn.bootcss.com/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
+	<script>window.jQuery || document.write('<script src="js/jquery-1.11.0.min.js"><\/script>')</script>
+	<script src="http://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/bootsnav.js"></script>
+	<script>
+	$(document).ready( function() {
+		var windowHeight =$(window).height(); 
+		$("#section").css("height",windowHeight);
+	});
+	</script>
+</body>
+</html>

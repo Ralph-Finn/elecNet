@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<style type="text/css">
+		body, html {width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+		#allmap{width:100%;height:100%;}
+		#r-result{width:100%;margin-top:5px;}
+		p{margin:5px; font-size:14px;}
+		#buttonGroup{position:absolute; left:0px; top:0px;}
+	</style>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=Ss2NVqvLYAcM3EcdVcTT6QLtAkDvXCvX"></script>
+	<script src="https://cdn.wilddog.com/js/vendor/jquery-1.11.2.min.js"></script>
+	<script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+	<title>抽象道路模型</title>
+</head>
+<body>
+	<div id="allmap"></div>
+	<div id = "buttonGroup" style="inline">
+		<input id = "draw" type="button"  value="绘图" />
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	// 百度地图API功能
+$(function(){
+	$( "#draw" ).button();
+});
+//////map的相关设置//////////////////////
+var map = new BMap.Map('allmap');
+map.addControl(new BMap.NavigationControl());
+map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+map.addControl(new BMap.MapTypeControl()); 
+map.centerAndZoom(new BMap.Point(113.340217, 23.12408 ), 16);
+////////////////////////////////////////////////////////
+var storage=window.localStorage;
+$("#draw").click(function(){
+	$.ajax({
+	url:'./getMux.php',
+	type:'post',
+	dataType:'json', 
+	success:function(data){
+		console.log(data);
+		drawLine(data,0,1,12);
+		//drawPoint(data);
+	}
+	});
+});
+  function colorMap(num)
+  {
+	val = parseInt(num/30)+1;
+	var color = '#096'; 
+	switch(val)
+	{
+	case 1:
+	  color ='#096' 
+	  break;
+	case 2:
+	  color ='#ffde33' 
+	  break;
+	case 3:
+	  color = '#ff9933'
+	  break;
+	case 4:
+	  color = '#cc0033'
+	  break;
+	case 5:
+	  color = '#660099'
+	  break;
+	case 6:
+	  color = '#7e0023'
+	  break;
+	default:
+	  color = '#999'
+	}
+	console.log(val);
+	return color;
+  }
+  
+  function verdata(data,key)
+	{
+		var ver = new Array();
+		for (var i in data){
+			ver.push(data[i][key]);
+		}
+		
+		return ver;
+	}
+	
+  function drawLine(data,pointindex,lineindex,key)
+ {
+	console.log('in drawLine function');
+	var point1=new BMap.Point(113.14,23.08);
+	var point2=new BMap.Point(113.14,23.08);
+	var pointClub = data[pointindex];
+	var lineClub = data[lineindex];
+	var ver = verdata(data[2],key);
+	console.log(ver);
+	for(var key in lineClub){ 
+	  point = getLineData(key, lineClub, pointClub);
+	  //覆盖物点坐标
+		if(pointindex == 0){
+			var polyline = new BMap.Polyline([
+				point[0],
+				point[1]
+			], {strokeColor:colorMap(ver[key]), strokeWeight:6, strokeOpacity:1}); 
+		}else{
+			var polyline = new BMap.Polyline([
+				point[0],
+				point[1]
+			], {strokeColor:'black', strokeWeight:3, strokeOpacity:1}); 
+		}
+		map.addOverlay(polyline); 
+	}
+
+ }
+ 
+ function getLineData(key, lineClub, pointClub)
+ {
+	var point1=new BMap.Point(113.14,23.08);
+	var point2=new BMap.Point(113.14,23.08);
+	var keygen1 = lineClub[key]['start'];
+	point1.lng=pointClub[keygen1-1]['lng'];
+	point1.lat=pointClub[keygen1-1]['lat'];
+	var keygen2 = lineClub[key]['end'];
+	point2.lng=pointClub[keygen2-1]['lng'];
+	point2.lat=pointClub[keygen2-1]['lat'];
+	return [point1,point2];
+ }
+</script>
