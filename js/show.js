@@ -4,7 +4,7 @@
 		$( "#road, #line" ).button();
 	});
 	//////map的相关设置//////////////////////
-	var map = new BMap.Map('allmap');
+	var map = new BMap.Map('allmap',{enableMapClick : false});
 	map.addControl(new BMap.NavigationControl());
 	map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
 	map.addControl(new BMap.MapTypeControl()); 

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>content</title>
+	<link href="style.css" type="text/css" rel="stylesheet" media="screen,projection" />
+	<link href='http://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
+	<link href="font-awesome-4.1.0.min.css" rel="stylesheet">
+	<link href="myStyle.css" rel="stylesheet">
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=Ss2NVqvLYAcM3EcdVcTT6QLtAkDvXCvX "></script>
+	<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/library/Heatmap/2.0/src/Heatmap_min.js"></script>
+	<script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+	<link rel="stylesheet" href="./css/styleCC.css">
+	<link rel="stylesheet" type="text/css" href="css/pretty.min.css">
+</head>
+
+<body>
+    
+    <div id="home" class="container">
+      <div class="header">
+        
+        <a class="menu-icon" href="#" style="z-index:9"><img src="./menu.png" /></a>
+        <ul class="side-menu">
+          <h2 class="title">功能菜单</h2>
+			<li class="row">
+            <div class="input_wrap" style="margin-top:10px">
+		      <input  id = "drawA" class="mux" type="text" placeholder="渗透率" />
+		      <div class="after"></div>
+		    </div>
+			<div>
+			<h5 style="margin-top:20px">是否为工作日:</h5>
+			<div style = "height:20px;margin-top:-10px" >
+			  <input type="radio" name="radio2" id ="h1" checked =true> 
+			  <label><i class="default"></i> 是</label>
+			</div>
+			<div style = "height:20px">
+			  <input type="radio" name="radio2" id ="h2"> 
+			  <label><i class="default"></i> 否</label>
+			</div>
+			</div>
+          </li>
+          <li class="row" style = "margin-top:190px">
+            <button  id = "draw" style = "margin-left:100px">在线计算</button>
+          </li>
+          
+          <li class="row">
+         
+          </li>
+        </ul>
+      </div>
+	  <div id="allmap" style="background-color:#000000;z-index:-1;height:100%"></div>
+    </div>    
+  
+  <!-- Javascript -->
+  <script src="js/init.js"></script>
+  <script type="text/javascript" src="./js/together.js"></script>
+  <script type="text/javascript">
+  $(function(){
+		$( "#draw" ).button();
+		});
+  </script>
+</body>
+</html>

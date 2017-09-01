@@ -10,14 +10,15 @@ map.centerAndZoom(new BMap.Point(113.340217, 23.12408 ), 16);
 ////////////////////////////////////////////////////////
 var storage=window.localStorage;
 $("#draw").click(function(){
+	driving = routeClub();
 	$.ajax({
 	url:'./getData.php',
 	type:'post',
 	dataType:'json', 
 	success:function(data){
 		console.log(data);
-		drawLine(data,0,1);
 		drawPoint(data);
+		drawRoute(data,0,1,driving);
 	}
 	});
 });
@@ -32,7 +33,7 @@ function drawPoint(data)
 	for(i=0;i<8;i++)
 	{
 		//构造icon的列表，这里面的图片非常的完全。
-		var mac = new BMap.Icon("./resource/n"+ String(i)+".png", new BMap.Size(15, 15), {});
+		var mac = new BMap.Icon("./resource/n"+ String(i)+".png", new BMap.Size(10, 10), {});
 		var cen = new BMap.Icon("./resource/t"+ String(i)+".png", new BMap.Size(25, 25), {});
 		Icon.push(mac);
 		Center.push(cen);
@@ -51,6 +52,7 @@ function drawPoint(data)
 					}
 		map.addOverlay(marker);
 	}
+	console.log('in draw function');
 
  }
  
@@ -93,3 +95,49 @@ function drawPoint(data)
 	point2.lat=pointClub[keygen2-1]['lat'];
 	return [point1,point2];
  }
+ 
+ 
+ var color = ['#777','#FF0000','#00FF00','#0000FF','#FFFF00','#00FFFF','#FF00FF','#A52A2A'];
+ 
+ function getOptions(type)
+ {
+ var options = {
+	onSearchComplete: function(results){
+		//if (driving.getStatus() == BMAP_STATUS_SUCCESS){
+			var plan = results.getPlan(0);
+			var route = plan.getRoute(0);
+			var tt=route.getPath();
+			var polyline = new BMap.Polyline(tt, {strokeColor:color[type], strokeWeight:2, strokeOpacity:1}); 
+			map.addOverlay(polyline);   //增加折线
+			console.log('draw a route');
+		//}
+	}
+	};
+return options;
+ }
+ 
+ function routeClub(){
+	routeClub = new Array();
+	for(type in color)
+	{
+		var driving = new BMap.DrivingRoute(map, getOptions(type));
+		routeClub.push(driving);
+	}
+	return routeClub;
+ }
+ 
+function drawRoute(data,pointindex,lineindex,driving)
+ {
+	console.log('in drawRoute function');
+	var pointClub = data[pointindex];
+	var lineClub = data[lineindex];
+	for(key in lineClub){ 
+	  point = getLineData(key, lineClub, pointClub);
+	  select = driving[lineClub[key]['section']];
+	  select.search(point[0], point[1]);
+	}
+
+ }
+ function openFileWin(){ 
+	window.open("./fileUp.html","newwindow","height=200,width=500,toolbar=no,menubar=no,scrollbars=no,resizable=no, location=no,status=no") ;
+	}

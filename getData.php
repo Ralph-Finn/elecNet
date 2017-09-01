@@ -1,4 +1,5 @@
-<?php
+<?php	
+//////////////////////////////////////////////
 $servername = "localhost";
 $username = "root";
 $password = "root";
@@ -22,7 +23,7 @@ if ($result->num_rows > 0) {
     echo "0 result";
 }
 }
-$data = array(queryDB($conn,"node"),queryDB($conn,"line"),queryDB($conn,"ax"),queryDB($conn,"road"),queryDB($conn,"station"));
+$data = array(queryDB($conn,"node"),queryDB($conn,"line"),queryDB($conn,"ax"),queryDB($conn,"road"),queryDB($conn,"station"),queryDB($conn,"ev"));
 echo json_encode($data);
 $conn->close();
 ?>

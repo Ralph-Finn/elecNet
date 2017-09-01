@@ -18,6 +18,10 @@ body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
 	#drawA{margin-top:5px}
 	#drawB{margin-top:5px}
 	#draw{display:iline-block;position:relative;left:20px;margin-top:10px}
+	#drawS{position:relative;left:10px;margin-top:-5px}
+	#drawR{position:relative;left:10px;margin-top:-5px}
+	#drawT{position:relative;left:0px;margin-top:0px;width:200px}
+	#myselect{display:iline-block;position:relative;}
 	#list{position:absolute; left:0px; top:0px; background-color:rgba(100%,100%,100%,0.8);}
 	#timepicker{margin-left:10px}
 	.blur {	
@@ -30,3 +34,8 @@ body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
 		
 		filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=10, MakeShadow=false); /* IE6~IE9 */
 	}
+	.git{display:iline-block}
+	#slider-range .ui-slider-range { background: #729fcf; }
+	#slider-range .ui-slider-handle { border-color: #729fcf;height:20px }
+	#list{position:absolute; left:0px; top:0px; background-color:rgba(0%,0%,0%,0.5);font-size:15px;display:none}
+	#list1{position:absolute; left:0px; top:0px; background-color:rgba(0%,0%,0%,0.5);font-size:15px;display:none}

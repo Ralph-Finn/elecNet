@@ -42,6 +42,15 @@ function drawPoint(data)
  
 function getOption(dataM,dataK)
 {
+var xdata = new Array();
+var div = 1;
+console.log(dataM.length);
+if(dataM.length < 40) {div = 1;}
+else if (dataM.length < 70) {div = 2;}
+	else {div = 4};
+for (i in dataM){
+	xdata.push(i/div);
+}
 
 var colors = ['#5793f3', '#d14a61', '#675bba'];
 
@@ -80,7 +89,7 @@ option = {
             },
             axisPointer: {
             },
-            data: ["0", "1","2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12","13", "14", "15", "16", "17", "18", "19", "20","21", "22", "23","24", "25", "26", "27", "28", "29", "30", "31", "32","33"]
+            data: xdata
         }
     ],
     yAxis: [

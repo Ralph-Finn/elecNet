@@ -9,13 +9,15 @@ Yy=TH_n(:,3);
 
 %% ============= 电动汽车各项权重计算和初始化 =============
 % ---------------------- 页面输入变量 ----------------------
-perm=parm(1);                                              %电动汽车渗透率设为20%
-weekday=parm(2);                                             %是否是工作日
-deta_t=parm(3);                                             %设置时间尺度，60分钟更新一次路况信息
+perm=parm(1);                                                 %电动汽车渗透率设为20%
+weekday=parm(2);                                           %是否是工作日
+deta_t=parm(3);                                               %设置时间尺度，60分钟更新一次路况信息
+T_d=parm(4);                                                   %记录时间下限
+T_u=parm(5);                                                   %记录时间上限
 % ---------------------- 各项参数整定 ----------------------
-N_max=round(10765*perm);                               %天河区电动汽车保有量
-T_down=0;                                              %记录时间下限
-T_up=24;                                               %记录时间上限
+N_max=round(2153*(perm/0.4));            %天河区电动汽车保有量
+T_down=0;                                             %仿真时间下限
+T_up=24;                                                %仿真时间上限
 T_record=T_up-T_down;
 S1=0.783;                                              %私家车占比
 S2=0.217;                                              %出租车占比
@@ -24,8 +26,8 @@ Ele_thre1=0.30;                                        %阈值电量1_30%
 Ele_thre2=0.28;                                        %阈值电量2_28%
 
 % --------------------- 计算各发车时刻权重 ---------------------
-for i=1:T_record*60
-    T(i,1)=T_down+floor(i/60);                         %记录小时
+for i=1:1440
+    T(i,1)=T_down+floor(i/60);                   %记录小时
     T(i,2)=mod(i,60);                                  %记录分钟 
     X(i)=T_down+floor(i/60)+mod(i,60)/60;
     f1(i)=Fitting( X(i),1 );                           %工作日私家车发车时间函数
@@ -37,9 +39,27 @@ end
 % --------------------- 导入EV初始数据 ---------------------
  
 K=EVs(:,2);   st=EVs(:,3);   en=EVs(:,4);
-t=EVs(:,5:6);     add_t=t;                              %记录最开始的发车时刻
 Power=EVs(:,7);   Mile=EVs(:,8);   Mile_left=EVs(:,9);
-
+for i=1:N_max
+    point=TH_n(:,1);
+    ww=weigth;
+    if K(i)==1
+        if weekday
+            t(i,:)= Origin_Time ( f1(1+T_down*60:T_up*60),T(1+T_down*60:end,:) );                  %筛选电动车出发时间
+        else
+            if rand<=0.45
+                tt = normrnd(10,1.5,1,1);
+                t(i,:)=[floor(tt),round(60*mod(tt,1))];
+            else
+                t(i,:)= Origin_Time ( f1(1+T_down*60:T_up*60),T(1+T_down*60:end,:) );
+            end
+        end    
+    end
+    
+    if K(i)==2
+        t(i,:)= Origin_Time ( f3(1+T_down*60:T_up*60),T(1+T_down*60:end,:) );              
+    end
+end
 for i=1:length(Mile_max)
     Mile_thre(i)=-(Mile_max(i)/1.6)*log(Ele_thre1);    %阈值电量所对应的距离阈值
     Mile_dthre(i)=(-(Mile_max(i)/1.6)*log(Ele_thre2))-Mile_thre(i);    %电动汽车缺电行驶半径
@@ -172,7 +192,7 @@ for i=1:T_max
                 
                 % ^^^^^^^^^^^^^^^^^^^^^^^^ 充电桩对车流量反馈影响子函数 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 path=[];
-                [ Selected,path,EV,mile,RR,arrive_time,leave_time,wait,slow ] = Charge_effect( before(ev(j,1)),CP(:,i),...
+                [ Selected,path,EV,mile,RR,arrive_time,leave_time,wait,slow ] = Charge_effect( before(ev(j,1),WW(ev(j,1),1)),CP(:,i),...
                     Path(j,:),Rr(j,1),R(ev(j,1)),Mile(ev(j,1),:),ev(j,:),K(ev(j,1)),v(:,i));  
                 R(ev(j,1))=RR;
                 Path(j,1:R(ev(j,1)))=path(1:R(ev(j,1)));
@@ -240,7 +260,7 @@ for i=1:T_max
     
     % --------------------- 更新主干道路实时速度 ---------------------
     Flow=flow(:,i)/perm;                               %车流量折算
-    v(:,i+1)=f2v( Flow );                              %调用流量-车速变换子函数 
+    v(:,i+1)=BPR( Flow );                              %调用流量-车速变换子函数 
     
     % ----------------- 根据不同类别重发已到站电动汽车 -----------------
     %已到站私家车选择和重发
@@ -327,8 +347,8 @@ if weekday
     csvwrite('./output/weekday_flow.csv',flow)
     csvwrite('./output/weekday_v.csv',v)
 else
-    csvwrite('./output/weekend_flow.csv',flow)
-    csvwrite('./output/weekend_v.csv',v)
+    csvwrite('./output/weekday_flow.csv',flow)
+    csvwrite('./output/weekday_v.csv',v)
 end
 
 %% ==================== 输出变量整理 ====================
@@ -350,62 +370,71 @@ Fast_PC=zeros(IO,T_max+10);
 for i=1:IO
     for j=1:FC(i)
         if F_Char(i,5*j-4)==1
-            if F_Char(i,5*j-1)*60+F_Char(i,5*j)<=(F_Char(i,5*j-3)+1)*60                 %判断充电期间是否跨时间步长deta_t
-                Fast_PC(i,F_Char(i,5*j-3))=Fast_PC(i,F_Char(i,5*j-3))+0.045*(F_Char(i,5*j)-F_Char(i,5*j-2))/60;
-            else
-                Fast_PC(i,F_Char(i,5*j-3))=Fast_PC(i,F_Char(i,5*j-3))+0.045*(60-F_Char(i,5*j-2))/60;
-                Fast_PC(i,F_Char(i,5*j-1))=Fast_PC(i,F_Char(i,5*j-1))+0.045*F_Char(i,5*j)/60;
+            DT1=F_Char(i,5*j-1)*60+F_Char(i,5*j);
+            DT2=F_Char(i,5*j-3)*60+F_Char(i,5*j-2);
+            DT=DT1-DT2;
+            for k=1:ceil(DT/deta_t)
+                Fast_PC(i,ceil(DT2/deta_t))=Fast_PC(i,ceil(DT2/deta_t))+(0.045/60)*min(deta_t,(DT1-DT2));
+                DT2=DT2+deta_t;
             end
         end
     end
 end
-csvwrite('./output/Fast_PC.csv',sum(Fast_PC))
+ffast_PC=[Fast_PC(:,1:10)+Fast_PC(:,T_max+1:end),Fast_PC(:,11:T_max)];
+fast_PC=ffast_PC(:,(T_d*60/deta_t)+1:T_u*60/deta_t);
+csvwrite('./output/Fast_PC.csv',sum(fast_PC))
 % ------------------  出租车快速充电负荷整理 ------------------ 
 Fast_PT=zeros(IO,T_max+10);
 for i=1:IO
     for j=1:FC(i)
         if F_Char(i,5*j-4)==2
-            if F_Char(i,5*j-1)*60+F_Char(i,5*j)<=(F_Char(i,5*j-3)+1)*60                 %判断充电期间是否跨时间步长deta_t
-                Fast_PT(i,F_Char(i,5*j-3))=Fast_PT(i,F_Char(i,5*j-3))+0.045*(F_Char(i,5*j)-F_Char(i,5*j-2))/60;
-            else
-                Fast_PT(i,F_Char(i,5*j-3))=Fast_PT(i,F_Char(i,5*j-3))+0.045*(60-F_Char(i,5*j-2))/60;
-                Fast_PT(i,F_Char(i,5*j-1))=Fast_PT(i,F_Char(i,5*j-1))+0.045*F_Char(i,5*j)/60;
+            DT1=F_Char(i,5*j-1)*60+F_Char(i,5*j);
+            DT2=F_Char(i,5*j-3)*60+F_Char(i,5*j-2);
+            DT=DT1-DT2;
+            for k=1:ceil(DT/deta_t)
+                Fast_PT(i,ceil(DT2/deta_t))=Fast_PT(i,ceil(DT2/deta_t))+(0.045/60)*min(deta_t,(DT1-DT2));
+                DT2=DT2+deta_t;
             end
         end
     end
 end
-csvwrite('./output/Fast_PT.csv',sum(Fast_PT))
-csvwrite('./output/Fast_Station.csv',[FC,sum(Fast_PC+Fast_PT,2)])
+ffast_PT=[Fast_PT(:,1:10)+Fast_PT(:,T_max+1:end),Fast_PT(:,11:T_max)];
+fast_PT=ffast_PT(:,(T_d*60/deta_t)+1:T_u*60/deta_t);
+csvwrite('./output/Fast_PT.csv',sum(fast_PT))
+csvwrite('./output/Fast_Station.csv',[FC,sum(fast_PC+fast_PT,2)])
 % ------------------  私家车慢速充电负荷整理 ------------------ 
-Slow_PC=zeros(1,T_max+10);
+Slow_PC=zeros(1,T_max+10*(60/deta_t));
 SPC=S_Char(find(SC~=0),:);
 for i=1:size(SPC,1)
-    for j=SPC(i,1):SPC(i,3)
-        if j==SPC(i,1)
-            Slow_PC(1,j)=Slow_PC(1,j)+0.007*(60-SPC(i,2))/60;
-        else if j==SPC(i,3)
-                Slow_PC(1,j)=Slow_PC(1,j)+0.007*SPC(i,4)/60;
-            else
-                Slow_PC(1,j)=Slow_PC(1,j)+0.007;
-            end
-        end
+    DT1=SPC(i,3)*60+SPC(i,4);
+    DT2=SPC(i,1)*60+SPC(i,2);
+    DT=DT1-DT2;
+    for j=1:ceil(DT/deta_t)
+        Slow_PC(1,ceil(DT2/deta_t))=Slow_PC(1,ceil(DT2/deta_t))+(0.007/60)*min(deta_t,(DT1-DT2));
+        DT2=DT2+deta_t;
     end
 end
 for i=1:N_max
-    if Home_time(i,1)>0 && K(i)==1 && Mile(i,R(i))/130>=0.55            %当SOC小于50%时进行慢充
-        for j=Home_time(i,1):Home_time(i,1)+5                           %慢充6个小时
-            Slow_PC(1,j)=Slow_PC(1,j)+0.007;
+    if Home_time(i,1)>0 && K(i)==1 && Mile(i,R(i))/130>=0.55  %当SOC小于50%时进行慢充
+        for j=1:5*(60/deta_t)                               %慢充5个小时
+            Tt=floor(Home_time(i,1)*60/deta_t);
+            Slow_PC(1,Tt+j)=Slow_PC(1,Tt+j)+(0.007/60)*deta_t;
         end
     end
 end
-csvwrite('./output/Slow_PC.csv',Slow_PC)
+sslow_PC=[Slow_PC(:,1:10*(60/deta_t))+Slow_PC(:,T_max+1:end),Slow_PC(:,11:T_max)];
+slow_PC=sslow_PC((T_d*60/deta_t)+1:T_u*60/deta_t);
+csvwrite('./output/Slow_PC.csv',slow_PC)
 % ------------------  出租车慢速充电负荷整理 ------------------ 
-Slow_PT=zeros(1,T_max+10);
+Slow_PT=zeros(1,T_max+10*(60/deta_t));
 for i=1:N_max
     if Home_time(i,1)>0 && K(i)==2 && Mile(i,R(i))/140>=0.65           
-        for j=Home_time(i,1):Home_time(i,1)+5                           
-            Slow_PT(1,j)=Slow_PT(1,j)+0.007;
+        for j=1:5*(60/deta_t) 
+            Tt=floor(Home_time(i,1)*60/deta_t);
+            Slow_PT(1,Tt+j)=Slow_PT(1,Tt+j)+(0.007/60)*deta_t;
         end
     end
 end
-csvwrite('./output/Slow_PT.csv',Slow_PT) 
+sslow_PT=[Slow_PT(:,1:10*(60/deta_t))+Slow_PT(:,T_max+1:end),Slow_PT(:,11:T_max)];
+slow_PT=sslow_PT((T_d*60/deta_t)+1:T_u*60/deta_t);
+csvwrite('./output/Slow_PT.csv',slow_PT) 

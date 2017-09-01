@@ -10,9 +10,10 @@ for i=2:length(F)
         break;
     end
 end
-
-t(1,1)=T(i,1);
-t(1,2)=T(i,2);
- 
+if i>1
+    t(1,1:2)=T(i,:);
+else
+    t(1,1:2)=T(1,:);
+end
 end
 

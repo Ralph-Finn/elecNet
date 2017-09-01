@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>content</title>
+	<link href="./css/style.css" type="text/css" rel="stylesheet" media="screen,projection" />
+	<link href='http://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
+	<link href="font-awesome-4.1.0.min.css" rel="stylesheet">
+	<link href="myStyle.css" rel="stylesheet">
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=Ss2NVqvLYAcM3EcdVcTT6QLtAkDvXCvX "></script>
+	<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/library/Heatmap/2.0/src/Heatmap_min.js"></script>
+	<script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<script src="./js/echarts.min.js"></script>
+	<link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+	<link rel="stylesheet" href="./css/styleCC.css">
+	<link rel="stylesheet" type="text/css" href="./css/htools.select.skin.css">
+	<script src="./js/jquery.htools.select.js"></script>
+	<link href="http://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+	<script src="http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+</head>
+
+<body>
+    
+    <div id="home" class="container">
+      <div class="header">
+        
+        <a class="menu-icon" href="#" style="z-index:9"><img src="./menu.png" /></a>
+        <ul class="side-menu">
+          <h2 class="title">功能菜单</h2>
+		  <h2 style="margin-top:10px;font-size: 20px;">充电设施</h2>
+		  <div style="margin-top:10px;display:inline-flex">
+		  
+		  <label>
+		        <select id="select">
+		            <option value=1>第一年</option>
+		            <option value=2>第二年</option>
+		            <option value=3>第三年</option>
+		            <option value=4>第四年</option>
+					<option value=5>第五年</option>
+		        </select>
+		  </label>
+		  <button id="drawS">绘制</button>
+		  </div>
+		  <h3 style="margin-top:40px;font-size: 20px;">配电系统</h3>
+		   <div style="margin-top:10px;display:inline-flex">
+		  
+		  <label>
+		        <select id="select1" >
+		            <option value=1>杨箕站</option>
+		            <option value=2>双子站</option>
+		            <option value=3>花穗站</option>
+		            <option value=4>中轴站</option>
+					<option value=5>隽雅站</option>
+					<option value=6>猎德站</option>
+					<option value=7>潭村站</option>
+		        </select>
+		  </label>
+		  <label style="margin-left:10px">
+		        <select id="select2">
+		            <option value=1>新增节点</option>
+		            <option value=2>扩容节点</option>
+		            <option value=3>线路信息</option>
+		        </select>
+		  </label>
+		  <button id="drawR">绘制</button>
+		  </div>
+		  
+		  <form style="margin-top:70px;background-color:#444" action="./downFile.php" method="post" enctype="multipart/form-data">
+			<button  id = "drawT" >下载数据</button>
+			</form>
+        </ul>
+      </div>
+	  <div id="allmap" style="background-color:#000000;z-index:-1;height:100%"></div>
+	  <div id = "dialog">
+		<table id="myTable" style="font-size:12px;width:800px"></table>
+		</div>
+	  <table id = "list">
+		<tr>
+		<td><img src="./resource/n1.png"/></td>
+		<td>第一年</td>
+		</tr>	
+		<tr>
+		<td><img src="./resource/n2.png"/></td>
+		<td>第二年</td>
+		</tr>
+		<tr>
+		<td><img src="./resource/n3.png"/></td>
+		<td>第三年</td>
+		</tr>
+		<tr>
+		<td><img src="./resource/n4.png"/></td>
+		<td>第四年</td>
+		</tr>
+		<tr>
+		<td><img src="./resource/n5.png"/></td>
+		<td>第五年</td>
+		</tr>
+	  </table>
+	  <table id = "list1">
+		<tr>
+		<td><img src="./resource/n1.png"/></td>
+		<td>第一区</td>
+		</tr>	
+		<tr>
+		<td><img src="./resource/n2.png"/></td>
+		<td>第二区</td>
+		</tr>
+		<tr>
+		<td><img src="./resource/n3.png"/></td>
+		<td>第三区</td>
+		</tr>
+		<tr>
+		<td><img src="./resource/n4.png"/></td>
+		<td>第四区</td>
+		</tr>
+		<tr>
+		<td><img src="./resource/n5.png"/></td>
+		<td>第五区</td>
+		</tr>
+		<tr>
+		<td><img src="./resource/n5.png"/></td>
+		<td>第六区</td>
+		</tr>
+		<tr>
+		<td><img src="./resource/n5.png"/></td>
+		<td>第七区</td>
+		</tr>
+	  </table>
+    </div>    
+  
+  <!-- Javascript -->
+  <script src="js/init.js"></script>
+  <script type="text/javascript" src="./js/result.js"></script>
+  <script src="js/jquery.sweet-dropdown.min.js"></script>
+  <script type="text/javascript">
+	        var $myselect = $("#select");
+	        $myselect.goSelectInput({
+	            height: 30,
+	            width: 250
+	        });
+			var $select1 = $("#select1");
+	        $select1.goSelectInput({
+	            height: 30,
+	            width: 120
+	        });
+			var $select2 = $("#select2");
+	        $select2.goSelectInput({
+	            height: 30,
+	            width: 120
+	        });
+			 $('#drawS,#drawR,#drawT').button();
+	</script>
+</body>
+</html>
